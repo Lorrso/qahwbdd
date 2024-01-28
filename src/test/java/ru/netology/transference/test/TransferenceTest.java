@@ -1,5 +1,6 @@
 package ru.netology.transference.test;
 
+import com.codeborne.selenide.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.transference.data.DataHelper;
@@ -38,5 +39,28 @@ public class TransferenceTest {
         var actualBalanceSecond = dashboardPage.getCardBalance(secondCardInfo);
         assertAll(() -> assertEquals(expectedBalanceFirst, actualBalanceFirst),
                 () -> assertEquals(expectedBalanceSecond, actualBalanceSecond));
+    }
+
+    @Test
+    void shouldFindErrorMessageWhileTransferMoneyOverBalance() {
+        var amount = generateInvalidAmount(dashboardPage.getCardBalance(firstCardInfo));
+        var transferPage = dashboardPage.selectCardToTransfer(secondCardInfo);
+        transferPage.makeTransfer(String.valueOf(amount), firstCardInfo);
+        transferPage.findErrorMessage("Ошибка! ");
+    }
+
+    @Test
+    void shouldFindErrorMessageWhileTransferMoneyNoCardNumber() {
+        var amount = generateValidAmount(dashboardPage.getCardBalance(firstCardInfo));
+        var transferPage = dashboardPage.selectCardToTransfer(secondCardInfo);
+        transferPage.makeTransferNoCard(String.valueOf(amount));
+        transferPage.findErrorMessage("Ошибка! ");
+    }
+
+    @Test
+    void shouldFindErrorMessageWhileTransferMoneyNoAmount() {
+        var transferPage = dashboardPage.selectCardToTransfer(secondCardInfo);
+        transferPage.makeTransferNoAmount(firstCardInfo);
+        transferPage.findErrorMessage("Ошибка! ");
     }
 }
